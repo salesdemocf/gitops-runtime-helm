@@ -1,0 +1,11 @@
+{{- define "gitops-operator.crds" }}
+  {{- include "gitops-operator.crds.promotion-flow" . }}
+---
+  {{- include "gitops-operator.crds.promotion-template" . }}
+---
+  {{- include "gitops-operator.crds.product" . }}
+---
+  {{- include "gitops-operator.crds.restricted-gitsource" . }}
+---
+  {{- include "gitops-operator.crds.promotion-policy" . }}
+{{- end }}

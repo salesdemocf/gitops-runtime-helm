@@ -1,0 +1,12 @@
+{{- define "cf-argocd-extras.sources-server.resources" }}
+---
+    {{- include "cf-argocd-extras.sources-server.configmap" . }}
+---
+    {{- include "cf-argocd-extras.sources-server.hpa" . }}
+---
+    {{- include "cf-argocd-extras.sources-server.deployment" . }}
+---
+    {{- include "cf-argocd-extras.sources-server.service" . }}
+---
+    {{- include "cf-argocd-extras.sources-server.rbac" . }}
+{{- end }}

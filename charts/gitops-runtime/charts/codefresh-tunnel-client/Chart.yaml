@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 2025.03.04-52de940
+description: Codefresh tunnel client for ingressless operation of runtimes
+name: codefresh-tunnel-client
+type: application
+version: 0.1.19

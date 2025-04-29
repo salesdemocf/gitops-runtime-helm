@@ -1,0 +1,7 @@
+{{- define "gitops-operator.resources.notifications" }}
+  {{- include "gitops-operator.resources.notifications-cm" . }}
+---
+  {{- include "gitops-operator.resources.notifications-secret" . }}
+---
+  {{- include "gitops-operator.resources.notifications_rbac" . }}
+{{- end }}

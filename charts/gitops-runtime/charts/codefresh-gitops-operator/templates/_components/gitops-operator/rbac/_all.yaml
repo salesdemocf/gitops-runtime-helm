@@ -1,0 +1,10 @@
+
+{{- define "gitops-operator.resources.rbac" }}
+  {{- include "gitops-operator.resources.auth_proxy_rbac" . }}
+---
+  {{- include "gitops-operator.resources.leader_election_rbac" .  }}
+---
+  {{- include "gitops-operator.resources.restricted_git_source_rbac" . }}
+---
+  {{- include "gitops-operator.resources.rbac-operator" . }}
+{{- end }}

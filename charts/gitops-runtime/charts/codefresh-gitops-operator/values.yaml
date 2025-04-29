@@ -1,0 +1,202 @@
+# -- When set to true no resources will be created. This exists in order to inject values from gitops runtime chart
+libraryMode: false
+
+global:
+  runtime:
+    name: ''
+
+  codefresh:
+    url: ''
+    tls:
+      # --  Custom CA certificates bundle for platform access with ssl
+      caCerts:
+        # -- Reference to existing secret
+        secretKeyRef: {}
+
+replicaCount: 1
+
+# -- Codefresh gitops operator crds
+crds:
+  # -- Whether or not to install CRDs
+  install: true
+  # -- Keep CRDs if gitops runtime release is uninstalled
+  keep: false
+  # -- Annotations on gitops operator CRDs
+  annotations: {}
+  # -- Additional labels for gitops operator CRDs
+  additionalLabels: {}
+
+env: {}
+
+image:
+  registry: ""
+  repository: quay.io/codefresh/codefresh-gitops-operator
+  # -- defaults to appVersion
+  tag: ""
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "gitops-operator-controller-manager"
+
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 10
+
+livenessProbe:
+  failureThreshold: 10
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 10
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - "ALL"
+command: []
+extraArgs: []
+nodeSelector: {}
+tolerations: []
+extraVolumes: []
+extraVolumeMounts: []
+affinity: {}
+
+resources:
+  limits: {}
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+## Notifications controller
+argoCdNotifications:
+  service:
+    type: ClusterIP
+    port: 8082
+
+  # -- Notifications controller name string
+  name: notifications-controller
+
+  argocd:
+    # -- Argo CD dashboard url; used in place of {{.context.argocdUrl}} in templates
+    # @default -- `http://argo-server`
+    url: http://argo-server
+    repoServer:
+      # -- Argo CD Repo Server fullname
+      # @default -- 'argo-cd-repo-server'
+      fullname: argo-cd-repo-server
+      # -- Argo CD Repo Server service port
+      # @default -- 8081
+      port: 8081
+
+  ## Notifications controller Pod Disruption Budget
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+  pdb:
+    # -- Deploy a [PodDisruptionBudget] for the notifications controller
+    enabled: false
+    # -- Labels to be added to notifications controller pdb
+    labels: {}
+    # -- Annotations to be added to notifications controller pdb
+    annotations: {}
+    # -- Number of pods that are available after eviction as number or percentage (eg.: 50%)
+    # @default -- `""` (defaults to 0 if not specified)
+    minAvailable: ""
+    # -- Number of pods that are unavailable after eviction as number or percentage (eg.: 50%).
+    ## Has higher precedence over `notifications.pdb.minAvailable`
+    maxUnavailable: ""
+
+  ## Notifications controller image
+  image:
+    # -- Repository to use for the notifications controller
+    # @default -- `quay.io/codefresh/argocd` (defaults to global.image.repository)
+    repository: quay.io/codefresh/argocd
+    # -- Tag to use for the notifications controller
+    # @default -- `v2.10-2024.3.29-1dcc54e29` (defaults to global.image.tag)
+    tag: v2.10-2024.3.29-1dcc54e29
+    # -- Image pull policy for the notifications controller
+    # @default -- `IfNotPresent` (defaults to global.image.imagePullPolicy)
+    imagePullPolicy: ""
+
+  # -- Secrets with credentials to pull images from a private registry
+  # @default -- `[]` (defaults to global.imagePullSecrets)
+  imagePullSecrets: []
+
+  # -- Notifications controller log format. Either `text` or `json`
+  # @default -- `""` (defaults to global.logging.format)
+  logFormat: ""
+  # -- Notifications controller log level. One of: `debug`, `info`, `warn`, `error`
+  # @default -- `""` (defaults to global.logging.level)
+  logLevel: ""
+  # -- Extra arguments to provide to the notifications controller
+  extraArgs: []
+  # -- Additional container environment variables
+  extraEnv: []
+
+  # -- envFrom to pass to the notifications controller
+  # @default -- `[]` (See [values.yaml])
+  extraEnvFrom: []
+    # - configMapRef:
+    #     name: config-map-name
+    # - secretRef:
+    #     name: secret-name
+  # -- List of extra mounts to add (normally used with extraVolumes)
+  extraVolumeMounts: []
+  # -- List of extra volumes to add
+  extraVolumes: []
+  # -- Define user-defined context
+  ## For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/templates/#defining-user-defined-context
+  context: {}
+    # region: east
+    # environmentName: staging
+  secret:
+    # -- notifications controller Secret name
+    name: "gitops-operator-notifications-secret"
+
+  # -- Configures notification services such as slack, email or custom webhook
+  # @default -- See [values.yaml]
+  ## For more information: https://argo-cd.readthedocs.io/en/stable/operator-manual/notifications/services/overview/
+  # -- Resource limits and requests for the notifications controller
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  # -- Notification controller container-level security Context
+  # @default -- See [values.yaml]
+  containerSecurityContext:
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+      - ALL
+
+  cm:
+    # -- The name of the config-map
+    # @default -- 'gitops-operator-notifications-cm'
+    name: gitops-operator-notifications-cm
+
+promotionTemplate:
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: "promotion-template"

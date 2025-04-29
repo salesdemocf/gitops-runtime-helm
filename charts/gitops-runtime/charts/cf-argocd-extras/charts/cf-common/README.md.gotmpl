@@ -1,0 +1,43 @@
+{{- define "custom.install" -}}
+## Installing the Chart
+
+This is a [Helm Library Chart](https://helm.sh/docs/topics/library_charts/#helm).
+
+**WARNING: THIS CHART IS NOT MEANT TO BE INSTALLED DIRECTLY**
+{{- end -}}
+
+{{- define "custom.usage" -}}
+## Using this library
+
+Include this chart as a dependency in your `Chart.yaml` e.g.
+
+```yaml
+# Chart.yaml
+dependencies:
+- name: cf-common
+  version: {{ template "chart.version" . }}
+  repository: {{ template "custom.helm.url" }}
+```
+
+**Read through the [values.yaml](./values.yaml) file.**
+{{- end -}}
+
+{{- define "custom.helm.url" -}}
+https://chartmuseum.codefresh.io/cf-common
+{{- end -}}
+
+{{ template "chart.header" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "custom.install" . }}
+
+{{ template "custom.usage" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

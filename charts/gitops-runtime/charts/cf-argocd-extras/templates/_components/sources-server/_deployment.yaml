@@ -1,0 +1,11 @@
+{{- define "cf-argocd-extras.sources-server.deployment" }}
+
+{{- $context := deepCopy . }}
+{{- $_ := set $context "Values" (mergeOverwrite dict .Values.global .Values.sourcesServer) }}
+{{- $_ := set $context.Values.podAnnotations "checksum/config" (include (print $.Template.BasePath "/sources-server/configmap.yaml") . | sha256sum) }}
+
+{{- $templateName := printf "cf-common-%s.controller" (index .Subcharts "cf-common").Chart.Version -}}
+{{- include $templateName $context -}}
+
+{{- end }}
+

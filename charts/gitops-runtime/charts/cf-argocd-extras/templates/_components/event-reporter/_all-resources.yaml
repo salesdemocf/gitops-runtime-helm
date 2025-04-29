@@ -1,0 +1,8 @@
+{{- define "cf-argocd-extras.event-reporter.resources" }}
+---
+    {{- include "cf-argocd-extras.event-reporter.configmap" . }}
+---
+    {{- include "cf-argocd-extras.event-reporter.rbac" . }}
+---
+    {{- include "cf-argocd-extras.event-reporter.statefulset" . }}
+{{- end }}

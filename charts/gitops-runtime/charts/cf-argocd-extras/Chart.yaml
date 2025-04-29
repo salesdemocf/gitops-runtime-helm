@@ -1,0 +1,16 @@
+apiVersion: v2
+appVersion: 0.3.15
+dependencies:
+- name: cf-common
+  repository: oci://quay.io/codefresh/charts
+  version: 0.24.0
+description: A Helm Chart for Codefresh Argocd Extras
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+maintainers:
+- name: codefresh
+  url: https://codefresh-io.github.io/
+name: cf-argocd-extras
+sources:
+- https://github.com/codefresh-io/cf-argocd-extras
+version: 0.3.15

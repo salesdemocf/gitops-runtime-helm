@@ -1,0 +1,3 @@
+{{- if not .Values.libraryMode }}
+  {{- include "gitops-operator.resources.sa" . }}
+{{- end }}

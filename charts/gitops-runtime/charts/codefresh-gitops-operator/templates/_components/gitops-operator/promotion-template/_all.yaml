@@ -1,0 +1,5 @@
+{{- define "gitops-operator.resources.promotion_template" }}
+  {{- include "gitops-operator.resources.promotion_template_sa" . }}
+---
+  {{- include "gitops-operator.resources.promotion_template_rbac" . }}
+{{- end }}

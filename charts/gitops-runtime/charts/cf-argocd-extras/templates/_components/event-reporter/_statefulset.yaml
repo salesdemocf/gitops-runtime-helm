@@ -1,0 +1,13 @@
+{{- define "cf-argocd-extras.event-reporter.statefulset" }}
+
+  {{- $context := deepCopy . }}
+  {{- $_ := set $context "Values" (mergeOverwrite dict .Values.global .Values.eventReporter) }}
+  {{- $_ := set $context.Values.podAnnotations "checksum/config" (include (print $.Template.BasePath "/event-reporter/configmap.yaml") . | sha256sum) }}
+
+  {{- if $context.Values.enabled }}
+    {{- $templateName := printf "cf-common-%s.controller" (index .Subcharts "cf-common").Chart.Version -}}
+    {{- include $templateName $context -}}
+  {{- end }}
+
+{{- end }}
+

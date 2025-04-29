@@ -1,0 +1,12 @@
+{{- define "cf-argocd-extras.event-reporter.configmap" }}
+  
+  {{- $context := deepCopy . }}
+  {{- $_ := set $context "Values" (mergeOverwrite dict .Values.global .Values.eventReporter) }}
+
+  {{- if $context.Values.enabled }}
+    {{- $templateName := printf "cf-common-%s.configmaps" (index .Subcharts "cf-common").Chart.Version -}}
+    {{- include $templateName $context -}}
+  {{- end }}
+
+{{- end }}
+

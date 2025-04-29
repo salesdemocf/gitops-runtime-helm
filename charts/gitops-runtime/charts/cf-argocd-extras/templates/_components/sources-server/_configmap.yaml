@@ -1,0 +1,10 @@
+{{- define "cf-argocd-extras.sources-server.configmap" }}
+
+{{- $context := deepCopy . }}
+{{- $_ := set $context "Values" (mergeOverwrite dict .Values.global .Values.sourcesServer) }}
+
+{{- $templateName := printf "cf-common-%s.configmaps" (index .Subcharts "cf-common").Chart.Version -}}
+{{- include $templateName $context -}}
+
+{{- end }}
+

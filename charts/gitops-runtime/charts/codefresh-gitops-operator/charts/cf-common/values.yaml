@@ -1,0 +1,785 @@
+# -- Global parameters
+global:
+  # -- Global Docker image registry
+  imageRegistry: ""
+  # -- Global Docker registry secret names as array
+  imagePullSecrets: []
+  # E.g.
+  # imagePullSecrets:
+  #   - myRegistrySecret
+  # Global controller parameters. No precedence over `.Values.controller`
+  controller: {}
+  # -- Global Env vars. NO precedence over `.Values.container.env`
+  env: {}
+
+# -- Provide a name in place of chart name
+nameOverride: ""
+# -- String to fully override app name
+fullNameOverride: ""
+# -- Override the Kubernetes version
+kubeVersionOverride: ""
+# -- Override APIVersions
+apiVersionOverrides:
+  # -- String to override apiVersion of autoscaling
+  # ONLY `autoscaling/v2` or `autoscaling/v2beta2`
+  autoscaling: ""
+
+# -- Controller parameters
+# @default -- See below
+controller:
+  # -- Define the controller type (`deployment`/`rollout`/`job`/`cronjob`)
+  type: ""
+  # -- Set labels on controller
+  labels: {}
+  # -- Set annotations on controller
+  annotations: {}
+  # -- Override the name suffix that is used for this controller
+  nameOverride: ""
+  # -- Set number of pods
+  replicas:
+  # -- Set ReplicaSet revision history limit
+  revisionHistoryLimit:
+  # -- Set statefulset podManagementPolicy (`OrderedReady`(default)/`Parallel`).
+  podManagementPolicy:
+  # -- Set controller upgrade strategy
+  # For Deployment: `RollingUpdate`(default) / `Recreate`
+  # For StatefulSet: `RollingUpdate`(default) / `OnDelete`
+  # For Rollout: `Canary(default) / `BlueGreen`
+  strategy:
+  # -- RollingUpdate strategy parameters
+  rollingUpdate:
+    # -- (Deployment) Set RollingUpdate max unavailable (absolute number or percentage)
+    maxUnavailable:
+    # -- (Deployment) Set RollingUpdate max surge (absolute number or percentage)
+    maxSurge:
+    # -- (StatefulSet) Set RollingUpdate partition
+    partition:
+  # Deployment parameters (overrides for global.deployment values)
+  deployment:
+    # Override upgrade strategy and its parameters
+    strategy:
+    rollingUpdate:
+      maxUnavailable:
+      maxSurge:
+  # Stateful Set parameters (overrides for global.deployment values)
+  statefulset:
+    # Override upgrade strategy and its parameters
+    strategy:
+    rollingUpdate:
+      partition:
+  # Rollout parameters (overrides for global.rollout values)
+  rollout:
+    # Analysis template parameters to run in the background during a rollout update.
+    analysisTemplate:
+      # Enable analysis template
+      enabled:
+      # Array of arguments to pass
+      args:
+      # The metrics which the analysis should perform
+      metrics:
+          # The name of the metric
+        - name:
+          # The maximum number of failed run an analysis is allowed.
+          failureLimit:
+          # Determines if a measurement is considered failed
+          failureCondition:
+          # Determines if a measurement is considered successful
+          successCondition:
+          # The external metrics system to use to verify the analysis
+          provider:
+            # Defines NewRelic as the external metrics system
+            newRelic:
+              # The name of the secret holding NewRelic account configuration
+              profile:
+              # A raw NewRelic NRQL query to perform
+              query:
+    # Analysis history configuration
+    analysis:
+      # -- Limits the number of successful analysis runs and experiments to be stored in a history
+      successfulRunHistoryLimit:
+      # -- Limits the number of unsuccessful analysis runs and experiments to be stored in a history. ( Stages for unsuccessful: "Error", "Failed", "Inconclusive" )
+      unsuccessfulRunHistoryLimit:
+    # -- Rollout update strategy - can be Canary or BlueGreen.
+    strategy:
+    # -- Canary update strategy parameters
+    canary:
+      # -- The maximum number of pods that can be unavailable during the update. Value can be an absolute number / percentage
+      maxUnavailable:
+      # -- The maximum number of pods that can be scheduled above the original number of pods. Value can be an absolute number / percentage
+      maxSurge:
+      # -- Steps define sequence of steps to take during an update of the canary.
+      steps:
+        # -- Sets the ratio of canary ReplicaSet in percentage.
+        - setWeight:
+        # -- Pauses the rollout for configured duration of time. Supported units: s, m, h. when setting `duration: {}` it will pauses indefinitely until manually resumed
+        - pause:
+            duration:
+        - setWeight:
+        - pause:
+            duration:
+  # Job parameters
+  job:
+    # -- Set the duration in seconds relative to the startTime that the job may be continuously active before the system tries to terminate it; value must be positive integer. (int)
+    activeDeadlineSeconds:
+    # -- Set the number of retries before marking this job failed. Defaults to 6. (int)
+    backoffLimit:
+    # -- Set the desired number of successfully finished pods the job should be run with. (int)
+    completions:
+    # -- Controls generation of pod labels and pod selectors. Leave manualSelector unset unless you are certain what you are doing. (boolean)
+    # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/job/#specifying-your-own-pod-selector
+    manualSelector:
+    # -- A label query over pods that should match the pod count. Normally, the system sets this field for you.
+    # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/job/#specifying-your-own-pod-selector
+    selector:
+    # -- Set the maximum desired number of pods the job should run at any given time. (int)
+    parallelism:
+    # -- Suspend specifies whether the Job controller should create Pods or not. (boolean)
+    suspend:
+    # -- Set the limit on the lifetime of a Job that has finished execution (either Complete or Failed). (int)
+    ttlSecondsAfterFinished:
+  # CronJob parameters
+  cronjob:
+    # -- Specifies how to treat concurrent executions of a job that is created by this cron job, valid values are Allow, Forbid or Replace
+    concurrencyPolicy: Forbid
+    # -- Sets the CronJob time when to execute your jobs
+    schedule: "*/20 * * * *"
+    # -- The deadline in seconds for starting the job if it misses its scheduled time for any reason
+    startingDeadlineSeconds: 30
+    # -- The number of succesful Jobs to keep
+    successfulJobsHistory: 1
+    # -- The number of failed Jobs to keep
+    failedJobsHistory: 1
+    # -- This flag tells the controller to suspend subsequent executions, it does not apply to already started executions. Defaults to false.
+    suspend:
+    # --  If this field is set, ttlSecondsAfterFinished after the Job finishes, it is eligible to be automatically deleted.
+    ttlSecondsAfterFinished:
+
+    # Parameters for jobTemplate in CronJob spec
+    activeDeadlineSeconds:
+    backoffLimit:
+    completions:
+    manualSelector:
+    selector:
+    parallelism:
+
+# -- Set image pull secrets as array
+imagePullSecrets: []
+# E.g.
+# imagePullSecrets:
+#   - myRegistrySecret
+
+# -- Set additional pod labels
+podLabels: {}
+# -- Set additional pod annotations
+podAnnotations: {}
+
+# -- Duration in seconds the pod needs to terminate gracefully
+terminationGracePeriodSeconds:
+
+# -- Used with `controller.type: statefulset` to create individual disks for each instance.
+volumeClaimTemplates: {}
+# E.g.
+# volumeClaimTemplates:
+#   data:
+#     labels: {}
+#     annotations: {}
+#     mountPath: /data
+#     accessMode: "ReadWriteOnce"
+#     size: 1Gi
+#     storageClass: ebs-csi
+
+# -- Main Container parameters
+# @default -- See below
+container:
+  # -- Set the container name
+  nameOverride: ""
+  # -- Image parameters
+  image:
+    # -- Set image registry
+    registry:
+    # -- Set image repository
+    repository:
+    # -- Set image tag
+    tag:
+    # -- Set image pull policy (`Always`, `Never`, `IfNotPresent`)
+    pullPolicy:
+
+  # -- Override commands for the container
+  command: []
+  # -- Override args for the container
+  args: []
+
+  # -- Set environments variables. Helm template supported.
+  env: {}
+  # E.g.
+  # env:
+  #   ALICE: BOB
+  #   FOO: "{{ .Valies.config.foo }}"
+  # -- Set Secrets or ConfigMaps loaded as environment variables.
+  envFrom: []
+  # E.g.
+  # envFrom:
+  #   - secretRef:
+  #       name: my-secret
+  #   - configMapRef:
+  #       name: my-config-map
+
+  # -- Set volume mounts for container
+  volumeMounts: {}
+
+  # Volume Mount name should match the Volume name (see `volumes` and `externalVolumes` section)
+  # E.g.
+  # volumeMounts:
+  #   config:
+  #     path:
+  #     - mountPath: /some/path/config.json
+  #       subPath: config.json
+  #   secret:
+  #     path:
+  #     - mountPath: /some/path/private.key
+  #       subPath: private.key
+  #       readOnly: true
+  #   data:
+  #     path:
+  #     - mountPath: /var/www/html
+
+  # Probes configuration
+  probes:
+    # Liveness probe configuration
+    liveness:
+      # -- Enable liveness probe
+      enabled: false
+      # -- Set liveness probe type (httpGet/exec)
+      type:
+      # httpGet probe type parameters
+      httpGet:
+        # -- Set httpGet probe path
+        path:
+        # -- Set httpGet probe port (name )
+        port:
+      # exec probe type parameters
+      exec:
+        # -- Set exec probe commands
+        command: []
+      # Liveness probe spec
+      spec:
+        # -- Set initial delay seconds for probe
+        initialDelaySeconds:
+        # -- Set period seconds for probe
+        periodSeconds:
+        # -- Set timeout seconds for probe
+        timeoutSeconds:
+        # -- Set success threshold for probe
+        successThreshold:
+        # -- Set failure threshold for probe
+        failureThreshold:
+    # Readiness probe configuration (parameters are identical to liveness)
+    readiness:
+      enabled: false
+    # Startup probe configuration (parameters are identical to liveness)
+    startup:
+      enabled: false
+
+  # -- Set the resources (requests/limits) for the container
+  resources:
+    limits: {}
+    requests: {}
+  # E.g.
+  # resources:
+  #   limits:
+  #     cpu: 100m
+  #     memory: 128Mi
+  #   requests:
+  #     cpu: 100m
+  #     memory: 128Mi
+
+  # -- Set security context for container
+  containerSecurityContext: {}
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  # E.g.
+  # containerSecurityContext:
+  #   allowPrivilegeEscalation: false
+
+  # -- Set the lifecycle hooks for container
+  lifecycle: {}
+  # Ref: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
+  # E.g.
+  # lifecycle:
+  #   preStop:
+  #     exec:
+  #       command:
+  #       - sh
+  #       - -c
+  #       - "sleep 5"
+
+# Create secrets with the values you provide.
+# Additional Secrets can be added by adding a dictionary key similar to the 'secret' object.
+# @default -- See below
+secrets:
+  # -- Secret name. Make sure to use the same name in `volumes` and `container.volumeMounts`
+  secret:
+    # -- Enable the secret
+    enabled: false
+    # -- Add additional labels to the secret
+    labels: {}
+    # -- Add additional annotations to the secret
+    annotation: {}
+    # -- Set secret type (`Opaque`/`kubernetes.io/tls`)
+    type: Opaque
+    # -- Secret data content. Plain text (not base64). Helm template supported. Passed through `tpl`, should be configured as string
+    stringData: {}
+    # stringData:
+    #   FOO: BAR
+    # E.g.
+    # stringData: |
+    #   FOO: "{{ .Values.global.foo }}"
+    #   BAR: "{{ .Values.global.bar }}"
+    #   {{- if .Values.global.something }}
+    #   ALICE: value
+    #   {{- end }}
+    data: {}
+    # -- Secret data content. Should be passed as base64 encoded text
+    # Helm template NOT supported.
+    # E.g.
+    # data:
+    #   tls.crt: |
+    #         MIIC2DCCAcCgAwIBAgIBATANBgkqh ...
+    #   tls.key: |
+    #         MIIEpgIBAAKCAQEA7yn3bRHQ5FHMQ ...
+
+# -- Create configMap with the values you provide.
+# Additional configMaps can be added by adding a dictionary key similar to the 'config' object.
+# @default -- See below
+configMaps:
+  # -- ConfigMap name. Make sure to use the same name in `volumes` and `container.volumeMounts`
+  config:
+    # -- Enable the configMap
+    enabled: false
+    # -- Add additional labels to the configMap
+    labels: {}
+    # -- Add additional annotations to the configMap
+    annotations: {}
+    # -- ConfigMap data content.
+    data: {}
+      # foo: bar
+    # Helm template supported. Passed through `tpl`, should be configured as string
+    # E.g.
+    # data: |
+    #   ALICE: "{{ .Values.global.alice }}"
+    #   BOB: "{{ .Values.global.bob }}"
+
+# -- Configure persistence for the chart
+# Additional items can be added by adding a dictionary key similar to the 'data' key.
+# @default -- See below
+persistence:
+  # -- PersistentVolumeClaim name.
+  data:
+    # -- Enable the PVC
+    enabled: false
+    # -- (required) Set AccessMode for persistent volume
+    accessMode: ReadWriteOnce
+    # -- (required) Set the requested size for persistent volume
+    size: 1Gi
+    # -- Set Storage Class for PVC object
+    # If set to `-`, dynamic provisioning is disabled.
+    # If set to something else, the given storageClass is used.
+    # If undefined (the default) or set to null, no storageClassName spec is set, choosing the default provisioner.
+    storageClass:
+    # -- Set to true to retain the PVC upon `helm uninstall`
+    retain: false
+    # -- Override the PVC name
+    nameOverride:
+
+# -- Configure volume for the controller.
+# Additional items can be added by adding a dictionary key similar to the 'config'/`secret` key.
+# @default -- See below
+volumes:
+  # -- Volume name. Make sure to use the same name in `configMaps`/`secrets`/`persistence` and `container.volumeMounts`
+  config:
+    # -- Enable the volume
+    enabled: false
+    # -- Volume type (configMap/secret/pvc/emptyDir)
+    type: configMap
+  secret:
+    enabled: false
+    type: secret
+  data:
+    enabled: false
+    type: pvc
+  emptyDir:
+    enabled: false
+    type: emptyDir
+    sizeLimit: 500Mi
+    medium: Memory
+  # Configure existing volumes (from other/parent chart) for the contoller.
+  # Make sure to specify `existingName` or `nameOverride` property. Helm template supported.
+  # E.g.
+  # volumes:
+  #   dind-clusters:
+  #     enabled: true
+  #     type: secret
+  #     existingName: "{{ .Values.config.dindClustersSecretName }}"
+  #     optional: true
+  #   extra-data:
+  #     enabled: true
+  #     type: pvc
+  #     nameOverride: "{{ .Values.config.extraDataPvcName }}"
+
+# -- Configure services fo the chart.
+# Additional services can be added by adding a dictionary key similar to the 'main' service.
+# @default -- See below
+service:
+  # -- Service name
+  main:
+    # -- Enabled the service
+    enabled: false
+    # -- Make this the primary service (used in probes, notes, etc...).
+    # If there is more than 1 service, make sure that only 1 service is marked as primary.
+    primary: true
+    # -- Add additional labels for the service
+    labels: {}
+    # -- Add additional annotations for the service
+    annotations: {}
+    # -- Set the service type
+    type: ClusterIP
+    # -- Allow adding additional match labels
+    extraSelectorLabels: {}
+    # -- Configure ports for the service
+    ports:
+      # Additional ports can be added by adding a dictionary key similar to the 'http' service.
+      # -- Port name
+      http:
+        # -- Port number
+        port:
+        # -- Port protocol (`HTTP`/`HTTPS`/`TCP`/`UDP`)
+        protocol: HTTP
+        # -- Set a service targetPort if you wish to differ the service port from the application port.
+        targetPort:
+        # If `targetPort` is specified, this port number is used in the container definition instead of
+        # the `port` value. Therefore named ports are not supported for this field
+
+# -- Configure the Ingresses for the chart.
+# Additional Ingresses can be added by adding a dictionary key similar to the 'main' ingress.
+# @default -- See below
+ingress:
+  main:
+    # -- Enables or disables the ingress
+    enabled: false
+    # -- Add additional labels for ingress.
+    labels: {}
+    # -- Add additional annotations for ingress.
+    annotations: {}
+    # E.g.
+    # annotations:
+    #   kubernetes.io/ingress.class: nginx
+    #   kubernetes.io/tls-acme: "true"
+    # -- Set the ingressClass that is used for the ingress.
+    ingressClassName:  # "nginx"
+
+    ## -- Configure the hosts for the ingress
+    hosts:
+      -  # -- Host address. Helm template can be passed.
+        host: domain.example.com
+        ## - Configure the paths for the host
+        paths:
+          -  # -- Path. Helm template can be passed.
+            path: /
+            # -- Path Type (`Prefix`/`ImplementationSpecific`(default)/`Exact`)
+            pathType:
+            service:
+              # -- Overrides the service name reference for this path. Helm template can be passed.
+              name:
+              # -- Overrides the service port reference for this path. Helm template can be passed.
+              port:
+
+    # -- Configure TLS for the ingress. Both secretName and hosts can process a Helm template.
+    tls: []
+    #  - secretName: domain-example-tls
+    #    hosts:
+    #      - domain.example.com
+
+# -- Specifies whether a service account token should be automatically mounted.
+automountServiceAccountToken: true
+
+# -- Set security context for the pod
+podSecurityContext: {}
+# E.g.
+# podSecurityContext:
+#   runAsNonRoot: true
+#   runAsGroup: 0
+#   fsGroup: 0
+#   runAsUser: 1000
+
+# -- Set node selection constrains
+nodeSelector: {}
+
+# -- Set tolerations constrains
+tolerations: []
+
+# -- Set affinity constrains
+affinity: {}
+
+# -- Set topologySpreadConstraints rules.
+# Helm template supported. Passed through `tpl`, should be configured as string
+topologySpreadConstraints: []
+# E.g.
+# topologySpreadConstraints: |
+#   - maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: ScheduleAnyway
+#     labelSelector:
+#       matchLabels:
+#         {{- include (printf "cf-common-%s.labels.matchLabels" (index .Subcharts "cf-common").Chart.Version) . | nindent 6 }}
+
+# -- Configure autoscaling (Horizontal Pod Autoscaler)
+# @default -- See below
+hpa:
+  # -- Enable HPA
+  enabled: false
+  # -- Set minimum autoscaling replicas
+  minReplicas:
+  # -- Set maximum autoscaling replicas
+  maxReplicas:
+  # -- Set target CPU utilization percentage
+  targetCPUUtilizationPercentage:
+  # -- Set target memory utilization percentage
+  targetMemoryUtilizationPercentage:
+  # -- Set custom metrics
+  metrics: []
+  # E.g.
+  # metrics:
+  #   - type: Object
+  #   object:
+  #     metric:
+  #       name: requests_per_pod
+  #     describedObject:
+  #       apiVersion: "v1"
+  #       kind: Service
+  #       name: production-cfapi-endpoints
+  #     target:
+  #       type: Value
+  #       value: 7
+
+# -- Configure KEDA Autoscaling
+keda:
+  # -- Enable ScaledObject
+  enabled: false
+  # -- ScaledObject parameters
+  # Ref: https://keda.sh/docs/2.14/concepts/scaling-deployments/
+  spec:
+    annotations: {}
+    # -- Override scaleTargetRef
+    scaleTargetRef: {}
+    # -- Override envSourceContainerName
+    envSourceContainerName: null
+    pollingInterval: null # default to 30
+    cooldownPeriod: null # default to 300
+    idleReplicaCount: null # Only 0 is allowed!
+    minReplicaCount: null # default to 1
+    maxReplicaCount: null # default to 100
+    fallback: {}
+    advanced: {}
+    # -- Configure Scalers
+    # Ref: https://keda.sh/docs/2.14/scalers/
+    triggers: []
+    # E.g.:
+    # triggers:
+    #   - type: rabbitmq
+    #     metadata:
+    #       protocol: http
+    #       mode: MessageRate
+    #       value: "20"
+    #       queueName: my_queue_name
+  # -- TriggerAuthentication parameters
+  # Ref: https://keda.sh/docs/2.14/concepts/authentication/
+  auth:
+    enabled: false
+    # -- Set secret target reference
+    secretTargetRef: []
+    # E.g.:
+    # secretTargetRef:
+    #   - parameter: host
+    #     name: keda-rabbitmq-secret
+    #     key: host
+
+# -- Configure Pod Disruption Budget
+# @default -- See below
+pdb:
+  # -- Enable PDB
+  enabled: false
+  # -- Set number of pods that are available after eviction as number of percentage
+  minAvailable: ""
+  # -- Set number of pods that are unavailable after eviction as number of percentage
+  maxUnavailable: ""
+
+# -- Configure Service Account
+# @default -- See below
+serviceAccount:
+  # -- Enable and create Service Account
+  enabled: false
+  # -- Override Service Account name (by default, name is generated with `fullname` template)
+  nameOverride: ""
+  # -- Set annotations for Service Account
+  annotations: {}
+  # -- Secret for Service Account
+  secret:
+    # -- Create secret for Service Account
+    enabled: false
+
+# -- Configure RBAC parameters
+# @default -- See below
+rbac:
+  # -- Enable RBAC resources
+  enabled: false
+  # -- Restrict RBAC in a single namespace instead of cluster-wide scope
+  namespaced: true
+  # -- Create custom rules
+  rules: []
+  # E.g.
+  # rules:
+  #   - apiGroups:
+  #       - ""
+  #     resources:
+  #       - pods
+  #     verbs:
+  #       - get
+  #       - list
+  #       - watch
+  #       - update
+
+# -- Array of extra objects to deploy with the release
+extraResources: []
+# E.g.
+# extraResources:
+# - apiVersion: v1
+#   kind: Pod
+#   metadata:
+#     name: dnsutils
+#     namespace: default
+#   spec:
+#     containers:
+#     - name: dnsutils
+#       image: registry.k8s.io/e2e-test-images/jessie-dnsutils:1.3
+#       command:
+#         - sleep
+#         - "infinity"
+#       imagePullPolicy: IfNotPresent
+#     restartPolicy: Always
+
+# -- Map of init containers to add
+# Follows the same values structure as in `.Values.containes` The map key (e.g. `sleep`) will be used for the container name.
+initContainers: {}
+# E.g.
+# initContainers:
+#   sleep:
+#     enabled: true
+#     image:
+#       registry: docker.io
+#       repository: bitnami/bitnami-shell
+#       tag: latest
+#       pullPolicy: IfNotPresent
+#     command: ['sh', '-c', "sleep 60"]
+
+# -- Array of extra (sidecar) containers to add
+additionalContainers: []
+# E.g.
+# additionalContainers:
+#   - name: sidecar-container
+#     image: busybox
+#     command: ["/bin/sh"]
+#     args: ["-c", "while true; do echo echo $(date -u) 'Hi I am from Sidecar container' >> /var/log/index.html; sleep 5;done"]
+#     resources: {}
+#     volumeMounts:
+#     - name: var-logs
+#       mountPath: /var/log
+
+# -- Configure ServiceMonitors for the chart.
+# Additional ServiceMonitors can be added by adding a dictionary key similar to the 'main' service monitor.
+# @default -- See below
+serviceMonitor:
+  # -- Service monitor name
+  main:
+    # -- Enable service monitor
+    enabled: false
+    # -- Override service monitor name suffix
+    nameOverride: ""
+    # -- Override service monitor full name
+    fullNameOverride: ""
+    # -- Add additional labels for the service monitor
+    labels: {}
+    # -- Add additional annotations for the service monitor
+    annotations: {}
+    # -- Override the default selector for the serviceMonitor.
+    # Takes precedence over default labels. Helm template can be used.
+    selector: {}
+    # E.g.
+    # selector:
+    #   matchLabels:
+    #     alice: bob
+    # -- Set namespace selector. If nil, release namespace is used.
+    namespaceSelector: {}
+    # E.g.
+    #   namespaceSelector:
+    #     matchNames:
+    #       - default
+    # -- Set endpoints for service monitor
+    endpoints:
+    - port: http
+      scheme: http
+      path: /metrics
+      interval: 1m
+      scrapeTimeout: 10s
+
+# -- Configure PodMonitors for the chart.
+# Additional podMonitors can be added by adding a dictionary key similar to the 'main' service monitor.
+# @default -- See below
+podMonitor:
+  # -- pod monitor name
+  main:
+    # -- Enable pod monitor
+    enabled: false
+    # -- Override pod monitor name suffix
+    nameOverride: ""
+    # -- Override pod monitor full name
+    fullNameOverride: ""
+    # -- Add additional labels for the pod monitor
+    labels: {}
+    # -- Add additional annotations for the pod monitor
+    annotations: {}
+    # -- Override the default selector for the podMonitor.
+    # Takes precedence over default labels. Helm template can be used.
+    selector: {}
+    # E.g.
+    # selector:
+    #   matchLabels:
+    #     alice: bob
+    # -- Set namespace selector. If nil, release namespace is used.
+    namespaceSelector: {}
+    # E.g.
+    #   namespaceSelector:
+    #     matchNames:
+    #       - default
+    # -- Set endpoints for pod monitor
+    podMetricsEndpoints:
+    - path: /metrics
+      targetPort: 9100
+
+# -- Create External Secrets
+externalSecrets: []
+# E.g.
+# externalSecrets:
+# - name: runtime-watcher-codefresh-token  # Name of resulting secret
+#   secretStoreRef: # Optional - defaults to below values
+#     name: asm
+#     kind: ClusterSecretStore
+#   remoteSecretName: test # Name of remote secret. If not specified here needs to be specified in the key
+#   keys:
+#     # Mandatory - Name of key in resultig secret
+#   - name: test
+#     # Name of remote secret. This value overrides value set under externalSecrets.remoteSecretName. At least one of them need to be provided
+#     remoteSecretName: test
+#     # Name of the key in remote secret
+#     remoteKey: test
+#     # Ref: https://external-secrets.io/v0.5.9/guides-decoding-strategy/
+#     # Auto/Base64
+#     decodingStrategy: Auto

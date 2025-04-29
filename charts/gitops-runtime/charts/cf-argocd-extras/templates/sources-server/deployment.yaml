@@ -1,0 +1,3 @@
+{{- if not .Values.libraryMode }}
+  {{- include "cf-argocd-extras.sources-server.deployment" . }}
+{{- end }}

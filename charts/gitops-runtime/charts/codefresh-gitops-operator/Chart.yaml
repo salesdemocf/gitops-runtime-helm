@@ -1,0 +1,20 @@
+apiVersion: v2
+appVersion: v0.5.4
+dependencies:
+- name: cf-common
+  repository: oci://quay.io/codefresh/charts
+  version: 0.19.2
+description: A Helm chart for Codefresh Gitop Operator
+home: https://codefresh.io/
+icon: https://avatars1.githubusercontent.com/u/11412079?v=3
+keywords:
+- codefresh
+- gitops-runtime
+- gitops-operator
+maintainers:
+- name: codefresh
+  url: https://codefresh-io.github.io/
+name: codefresh-gitops-operator
+sources:
+- https://github.com/codefresh-io/codefresh-gitops-operator
+version: 0.5.4

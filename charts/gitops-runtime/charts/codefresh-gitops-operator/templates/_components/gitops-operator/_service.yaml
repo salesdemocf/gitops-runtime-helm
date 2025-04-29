@@ -1,0 +1,17 @@
+{{- define "gitops-operator.resources.service" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gitops-operator.fullname" . }}
+  labels:
+    {{- include "gitops-operator.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.argoCdNotifications.service.type }}
+  ports:
+  - port: {{ .Values.argoCdNotifications.service.port }}
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "gitops-operator.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: v0.0.0
+description: Codefresh library chart
+keywords:
+- codefresh
+- libs
+maintainers:
+- name: codefresh
+  url: https://codefresh-io.github.io/
+name: cf-common
+type: library
+version: 0.19.2

@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: v0.9.4
+description: S3-compatible object store for small self-hosted geo-distributed deployments
+maintainers:
+- name: garagehq.deuxfleurs.fr
+- name: codefresh.io
+name: garage
+type: application
+version: 0.5.0-cf.3

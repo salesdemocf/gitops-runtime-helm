@@ -1,0 +1,16 @@
+{{- define "gitops-operator.resources" }}
+---
+  {{- include "gitops-operator.crds" . }}
+---
+  {{- include "gitops-operator.resources.deployment" . }}
+---
+   {{- include "gitops-operator.resources.notifications" . }}
+---
+  {{- include "gitops-operator.resources.promotion_template" . }}
+---
+  {{- include "gitops-operator.resources.rbac" . }}
+---
+  {{- include "gitops-operator.resources.sa" . }}
+---
+  {{- include "gitops-operator.resources.service" . }}
+{{- end }}

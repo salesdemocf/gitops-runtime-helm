@@ -1,0 +1,77 @@
+{{- define "gitops-operator.resources.notifications-cm" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.argoCdNotifications.cm.name }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "gitops-operator.labels" . | nindent 4 }}
+data:
+  context: |
+    argocdUrl: {{ .Values.argoCdNotifications.argocd.url }}
+    {{- with .Values.argoCdNotifications.context }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  service.webhook.cf-promotion-app-revision-changed-notifier: |
+    url: http://localhost:8082/app-revision-changed
+    headers:
+    - name: Content-Type
+      value: application/json
+  service.webhook.cf-promotion-app-degraded-notifier: |
+    url: http://localhost:8082/app-degraded
+    headers:
+    - name: Content-Type
+      value: application/json
+  subscriptions: |
+    - triggers:
+      - cf-promotion-on-deployed-trigger
+      recipients:
+      - cf-promotion-app-revision-changed-notifier
+    - triggers:
+      - cf-promotion-on-out-of-sync-trigger
+      recipients:
+      - cf-promotion-app-revision-changed-notifier
+    - triggers:
+      - cf-promotion-app-degraded-trigger
+      recipients:
+      - cf-promotion-app-degraded-notifier
+  template.cf-promotion-app-revision-changed-template: |
+    webhook:
+      cf-promotion-app-revision-changed-notifier:
+        method: POST
+        body: |
+          {
+            "APP_NAMESPACE": {{ "{{" }} .app.metadata.namespace | quote {{ "}}" }},
+            "APP_NAME": {{ "{{" }} .app.metadata.name | quote {{ "}}" }},
+            "REPO_URL": {{ "{{" }} call .repo.RepoURLToHTTPS .app.spec.source.repoURL | quote }},
+            "BRANCH": {{ "{{" }} .app.spec.source.targetRevision | quote {{ "}}" }},
+            "PATH": {{ "{{" }} .app.spec.source.path | quote {{ "}}" }},
+            "CURRENT_COMMIT_SHA": {{ "{{" }} if .app.spec.sources {{ "}}" }}{{ "{{" }} if not (get .app.spec.syncPolicy "automated") {{ "}}" }}{{ "{{" }} (index .app.status.sync.revisions 0) | quote {{ "}}" }}{{ "{{" }} else {{ "}}" }}{{ "{{" }} (index .app.status.operationState.syncResult.revisions 0) | quote {{ "}}" }}{{ "{{" }} end {{ "}}" }}{{ "{{" }} else {{ "}}" }}{{ "{{" }} if not (get .app.spec.syncPolicy "automated") {{ "}}" }}{{ "{{" }} .app.status.sync.revision | quote {{ "}}" }}{{ "{{" }} else {{ "}}" }}{{ "{{" }} .app.status.operationState.syncResult.revision | quote {{ "}}" }}{{ "{{" }} end {{ "}}" }}{{ "{{" }} end {{ "}}" }}
+          }
+  template.cf-promotion-app-degraded-template: |
+    webhook:
+      cf-promotion-app-degraded-notifier:
+        method: POST
+        body: |
+          {
+            "APP_NAMESPACE": {{ "{{" }} .app.metadata.namespace | quote {{ "}}" }},
+            "APP_NAME": {{ "{{" }} .app.metadata.name | quote {{ "}}" }}
+          }
+  trigger.cf-promotion-on-deployed-trigger: |
+    - description: Application is synced and healthy. Triggered once per commit.
+      when: app.status.sync.status == "Synced" && app.status.health.status == "Healthy" && app.status.operationState.syncResult.revision != nil
+      oncePer: app.status.operationState.syncResult.revision
+      send:
+      - cf-promotion-app-revision-changed-template
+  trigger.cf-promotion-on-out-of-sync-trigger: |
+    - description: Application is out of sync (when autoHeal is off). Triggered once per commit.
+      when: (get(app.spec, "syncPolicy") == nil || get(app.spec.syncPolicy, "automated") == nil) && app.status.sync.status == "OutOfSync" && app.status.sync.revision != nil
+      oncePer: app.status.sync.revision
+      send:
+      - cf-promotion-app-revision-changed-template
+  trigger.cf-promotion-app-degraded-trigger: |
+    - description: Application is degraded.
+      when: app.status.health.status == "Degraded"
+      send:
+      - cf-promotion-app-degraded-template
+{{- end }}

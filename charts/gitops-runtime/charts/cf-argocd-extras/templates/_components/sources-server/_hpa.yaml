@@ -1,0 +1,10 @@
+{{- define "cf-argocd-extras.sources-server.hpa" }}
+
+{{- $context := deepCopy . }}
+{{- $_ := set $context "Values" (mergeOverwrite dict .Values.global .Values.sourcesServer) }}
+
+{{- $templateName := printf "cf-common-%s.hpa" (index .Subcharts "cf-common").Chart.Version -}}
+{{- include $templateName $context -}}
+
+{{- end }}
+
